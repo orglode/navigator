@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/orglode/go-wake/model"
+	"github.com/orglode/navigator/model"
 )
 
 func (s *Service) Test(req model.TestAReq) (interface{}, error) {

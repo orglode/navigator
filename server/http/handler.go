@@ -3,7 +3,7 @@ package http
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/orglode/go-wake/model"
+	"github.com/orglode/navigator/model"
 )
 
 func test(c *gin.Context) {

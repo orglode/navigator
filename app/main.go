@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/orglode/go-wake/conf"
-	"github.com/orglode/go-wake/server/http"
-	"github.com/orglode/go-wake/service"
+	"github.com/orglode/navigator/conf"
+	"github.com/orglode/navigator/server/http"
+	"github.com/orglode/navigator/service"
 )
 
 func main() {

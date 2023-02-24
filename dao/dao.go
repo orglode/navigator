@@ -3,8 +3,8 @@ package dao
 import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
-	"github.com/orglode/go-wake/api"
-	"github.com/orglode/go-wake/conf"
+	"github.com/orglode/navigator/api"
+	"github.com/orglode/navigator/conf"
 	"go.uber.org/zap"
 	_ "gorm.io/driver/mysql"
 	"time"

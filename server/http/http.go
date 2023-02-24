@@ -2,8 +2,8 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/orglode/go-wake/conf"
-	"github.com/orglode/go-wake/service"
+	"github.com/orglode/navigator/conf"
+	"github.com/orglode/navigator/service"
 )
 
 var (

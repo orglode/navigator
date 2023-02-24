@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/orglode/go-wake/api"
-	"github.com/orglode/go-wake/conf"
-	"github.com/orglode/go-wake/dao"
-	"github.com/orglode/go-wake/manager"
+	"github.com/orglode/navigator/api"
+	"github.com/orglode/navigator/conf"
+	"github.com/orglode/navigator/dao"
+	"github.com/orglode/navigator/manager"
 	"go.uber.org/zap"
 )
 

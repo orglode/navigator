@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/orglode/go-wake/model"
+	"github.com/orglode/navigator/model"
 )
 
 func (d *Dao) GetMachineAll() ([]model.DemoModel, error) {
