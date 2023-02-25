@@ -11,14 +11,6 @@ release_bin_path=$release_project_path/
 release_config_path=$release_project_path/config/
 release_log_path=$release_project_path/log
 
-if [ "$1"=="" ]; then
-        printf "params 1 is null   --- env"
-        exit 101
-fi
-if [ "$2"=="" ]; then
-        printf "params 2 is null   --- fileName"
-        exit 101
-fi
 
 
 printEnv(){
@@ -99,10 +91,10 @@ printRelease(){
     printf "============================================\n\n\n"
 }
 printEnv
-#cleanDir
-#buildBin
-#copyConf
-#printRelease
+cleanDir
+buildBin
+copyConf
+printRelease
 exit 0
 }
 
