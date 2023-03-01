@@ -17,18 +17,18 @@ var (
 func Init(s *service.Service, conf *conf.Config) {
 	//禁用调式终端颜色
 	gin.DisableConsoleColor()
-	rbac := gin.New()
+	router := gin.New()
 	//判断环境 是否开启debug模式
 	if conf.Env == model.EnvProduction {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	//gin日志模式
-	rbac.Use(gin.LoggerWithConfig(initGinLog()))
-	rbac.Use(gin.Recovery())
+	router.Use(gin.LoggerWithConfig(initGinLog()))
+	router.Use(gin.Recovery())
 	//初始化路由
-	initRouter(rbac)
+	initRouter(router)
 	svc = s
-	rbac.Run(conf.HttpAddr)
+	router.Run(conf.HttpAddr)
 }
 
 // 初始化gin日志库
