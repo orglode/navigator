@@ -13,6 +13,7 @@ import (
 type Dao struct {
 	conf        *conf.Config
 	MySqlMaster *gorm.DB
+	MySqlSlave  *gorm.DB
 	Redis       redis.Conn
 	logger      *zap.Logger
 }
@@ -20,15 +21,16 @@ type Dao struct {
 func NewDao(conf *conf.Config) *Dao {
 	return &Dao{
 		conf:        conf,
-		MySqlMaster: initMysqlDb(conf),
+		MySqlMaster: initMysqlDb(conf.DbMaster),
+		MySqlSlave:  initMysqlDb(conf.DbSlave),
 		Redis:       initRedis(conf),
 		logger:      api.InitLogger(),
 	}
 }
 
 // 初始化MySQL连接池
-func initMysqlDb(conf *conf.Config) *gorm.DB {
-	master, err := gorm.Open("mysql", conf.DbMaster)
+func initMysqlDb(dbConf string) *gorm.DB {
+	master, err := gorm.Open("mysql", dbConf)
 	if err != nil {
 		return nil
 	}
