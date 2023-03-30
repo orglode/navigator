@@ -46,7 +46,7 @@ func initDbLog() logger.Interface {
 
 // 初始redis
 func initRedis(conf *conf.Config) redis.Conn {
-	conn, err := redis.Dial("tcp", conf.RedisUrl)
+	conn, err := redis.Dial("tcp", conf.Redis.Addr)
 	if err != nil {
 		return nil
 	}

@@ -17,8 +17,8 @@ type Dao struct {
 func NewDao(conf *conf.Config) *Dao {
 	return &Dao{
 		conf:        conf,
-		MySqlMaster: initMysqlDb(conf.DbMaster),
-		MySqlSlave:  initMysqlDb(conf.DbSlave),
+		MySqlMaster: initMysqlDb(conf.Mysql.Master),
+		MySqlSlave:  initMysqlDb(conf.Mysql.Slave),
 		Redis:       initRedis(conf),
 	}
 }

@@ -2,20 +2,37 @@ package conf
 
 import "github.com/BurntSushi/toml"
 
-type Config struct {
-	Env      string `toml:"env"`
-	HttpAddr string `toml:"http_addr"`
-	DbMaster string `toml:"db_master"`
-	DbSlave  string `toml:"db_slave"`
-	RedisUrl string `toml:"redis_url"`
-}
-
 func Init() *Config {
 	cfg := &Config{}
-	fileUrl := "config/config.toml"
-	_, err := toml.DecodeFile(fileUrl, &cfg)
+	confPath := "config/config.toml"
+	_, err := toml.DecodeFile(confPath, &cfg)
 	if err != nil {
 		panic("config.toml is err !!")
 	}
 	return cfg
+}
+
+type Config struct {
+	Server *server
+	Mysql  *mysqlConfig
+	Redis  *redisConfig
+}
+
+type server struct {
+	Name string `toml:"name"`
+	Addr string `toml:"addr"`
+	Env  string `toml:"env"`
+}
+
+type mysqlConfig struct {
+	Name   string `toml:"name"`
+	Master string `toml:"master"`
+	Slave  string `toml:"slave"`
+}
+
+type redisConfig struct {
+	Name     string `toml:"name"`
+	Addr     string `json:"addr"`
+	PassWord string `json:"pass_word"`
+	DataBase int    `json:"data_base"`
 }
