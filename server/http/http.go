@@ -21,7 +21,7 @@ func Init(s *service.Service, conf *conf.Config) {
 	//禁用调式终端颜色
 	gin.DisableConsoleColor()
 	//判断环境 是否开启debug模式
-	if conf.Env == model.EnvProduction {
+	if conf.Server.Env == model.EnvProduction {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	//gin日志模式
@@ -29,7 +29,7 @@ func Init(s *service.Service, conf *conf.Config) {
 	router.Use(gin.Recovery())
 	//初始化路由
 	initRouter(router)
-	router.Run(conf.HttpAddr)
+	router.Run(conf.Server.Addr)
 }
 
 // 初始化gin日志库
