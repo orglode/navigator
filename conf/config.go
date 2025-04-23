@@ -1,12 +1,14 @@
 package conf
 
-import "github.com/BurntSushi/toml"
+import (
+	"github.com/BurntSushi/toml"
+)
 
 func Init() *Config {
 	cfg := &Config{}
 	confPath := "config/config.toml"
-	_, err := toml.DecodeFile(confPath, &cfg)
-	if err != nil {
+
+	if _, err := toml.DecodeFile(confPath, &cfg); err != nil {
 		panic("config.toml is err !!")
 	}
 	return cfg
@@ -34,5 +36,5 @@ type redisConfig struct {
 	Name     string `toml:"name"`
 	Addr     string `json:"addr"`
 	PassWord string `json:"pass_word"`
-	DataBase int    `json:"data_base"`
+	Db       int    `json:"db"`
 }

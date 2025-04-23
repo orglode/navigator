@@ -18,8 +18,8 @@ type logger struct {
 
 // init 创建runtime目录，并初始化Logger
 func init() {
-	if !isDir("log") {
-		err := os.Mkdir("./log", 0777)
+	if !isDir("logs") {
+		err := os.Mkdir("./logs", 0777)
 		if err != nil {
 			panic("无法创建log目录")
 		}
@@ -63,8 +63,8 @@ func new() *logger {
 
 // setLogfile 更新日志文件
 func (l *logger) setLogfile() error {
-	year, month, day := time.Now().Date()
-	dir := fmt.Sprintf("./log/%d/%02d", year, month)
+	year, month, _ := time.Now().Date()
+	dir := fmt.Sprintf("./logs/%d-%02d", year, month)
 
 	//锁住，防止并发时，多次执行创建。os.MkdirAll在目录存在时，也不会返回错误，锁不锁都行
 	l.m.Lock()
@@ -73,10 +73,10 @@ func (l *logger) setLogfile() error {
 		err := os.MkdirAll(dir, 0755)
 		return err
 	}
-
-	logfile := fmt.Sprintf("%s/%02d.log", dir, day)
+	dayStr := time.Now().Format("20060102")
+	logfile := fmt.Sprintf("%s/%s.log", dir, dayStr)
 	//打开新的日志文件，用于写入
-	fp, err := os.OpenFile(logfile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	fp, err := os.OpenFile(logfile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0777)
 	if err != nil {
 		return err
 	}

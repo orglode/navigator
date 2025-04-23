@@ -35,7 +35,7 @@ func Init(s *service.Service, conf *conf.Config) {
 // 初始化gin日志库
 func initGinLog() gin.LoggerConfig {
 	date := time.Now().Format("20060102")
-	f, _ := os.OpenFile("./log/access_"+date+".log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0777)
+	f, _ := os.OpenFile("./logs/access_"+date+".log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0777)
 	var logConf = gin.LoggerConfig{
 		Formatter: func(param gin.LogFormatterParams) string {
 			return fmt.Sprintf("客户端IP:%s,请求时间:[%s],请求方式:%s,请求地址:%s,响应时间:%s\n",
