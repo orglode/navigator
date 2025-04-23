@@ -21,9 +21,10 @@ type Config struct {
 }
 
 type server struct {
-	Name string `toml:"name"`
-	Addr string `toml:"addr"`
-	Env  string `toml:"env"`
+	Name     string `toml:"name"`
+	Addr     string `toml:"addr"`
+	Env      string `toml:"env"`
+	JwtToken string `toml:"jwt_token"`
 }
 
 type mysqlConfig struct {

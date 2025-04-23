@@ -1,6 +1,9 @@
 package model
 
-import "navigator/api"
+import (
+	"github.com/golang-jwt/jwt/v4"
+	"navigator/api"
+)
 
 type model struct {
 }
@@ -18,3 +21,8 @@ const (
 	StatusSuccess = 2
 	StatusFail    = 1
 )
+
+type MyClaims struct {
+	UserId int64 `json:"user_id"`
+	jwt.RegisteredClaims
+}

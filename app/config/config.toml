@@ -2,6 +2,7 @@
 name = "public"
 addr = ":23200"
 env = "test"
+jwt_token = "ywuieqwi1238799jsjkadk!@#"
 
 
 [mysql]

@@ -2,11 +2,14 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	"navigator/api/jwt"
 )
 
 func initRouter(r *gin.Engine) {
 
-	api := r.Group("/api/")
+	r.GET("login", JwtTEstUser)
+
+	api := r.Group("/api/", jwt.AuthMiddleware())
 	{
 		api.GET("info", GetWxInfo)
 	}
