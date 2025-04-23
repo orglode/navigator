@@ -1,6 +1,6 @@
 package model
 
-import "github.com/orglode/navigator/api"
+import "navigator/api"
 
 type model struct {
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/orglode/navigator/conf"
-	"github.com/orglode/navigator/server/http"
-	"github.com/orglode/navigator/service"
+	"navigator/conf"
+	"navigator/server/http"
+	"navigator/service"
 )
 
 func main() {

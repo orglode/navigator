@@ -3,12 +3,9 @@ package http
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/orglode/navigator/conf"
-	"github.com/orglode/navigator/model"
-	"github.com/orglode/navigator/service"
-	"io"
-	"os"
-	"time"
+	"navigator/conf"
+	"navigator/model"
+	"navigator/service"
 )
 
 var (
@@ -34,19 +31,22 @@ func Init(s *service.Service, conf *conf.Config) {
 
 // 初始化gin日志库
 func initGinLog() gin.LoggerConfig {
-	date := time.Now().Format("20060102")
-	f, _ := os.OpenFile("./logs/access_"+date+".log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0777)
+	//date := time.Now().Format("20060102")
+	//year, month, _ := time.Now().Date()
+	//dir := fmt.Sprintf("./logs/%d-%02d", year, month)
+	//path := fmt.Sprintf("%s/access_"+date+".log", dir)
+	//f, _ := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0777)
 	var logConf = gin.LoggerConfig{
 		Formatter: func(param gin.LogFormatterParams) string {
-			return fmt.Sprintf("客户端IP:%s,请求时间:[%s],请求方式:%s,请求地址:%s,响应时间:%s\n",
+			return fmt.Sprintf("RequestUrl:%s,RequetMethod:%s,ClientIP:%s,RequestTime:[%s],TimeCost:%s\n",
+				param.Path,
+				param.Method,
 				param.ClientIP,
 				param.TimeStamp.Format("2006年01月02日 15:03:04"),
-				param.Method,
-				param.Path,
 				param.Latency,
 			)
 		},
-		Output: io.MultiWriter(os.Stdout, f),
+		//Output: io.MultiWriter(os.Stdout, f),
 	}
 	return logConf
 }

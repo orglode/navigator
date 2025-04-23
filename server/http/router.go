@@ -6,6 +6,14 @@ import (
 
 func initRouter(r *gin.Engine) {
 
-	//页面按钮接口
-	//rbac.GET("test", backgroundLogin)                               //CRM登录
+	api := r.Group("/api/")
+	{
+		api.GET("info", GetWxInfo)
+	}
+
+	crm := r.Group("/crm")
+	{
+		crm.GET("/ping")
+	}
+
 }

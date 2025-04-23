@@ -1,100 +1,141 @@
 package logger
 
 import (
-	"errors"
+	"context"
 	"fmt"
+	"gorm.io/gorm/logger"
+	"log"
 	"os"
-	"sync"
+	"path/filepath"
+	"runtime"
 	"time"
 )
 
-var Logger *logger
-
-type logger struct {
-	t  time.Time
-	fp *os.File
-	m  sync.RWMutex
+// 创建一个自定义的日志记录器
+type DbLogger struct {
+	SlowThreshold time.Duration
+	LogLevel      logger.LogLevel
+	Colorful      bool
+	// 使用 GORM 的默认日志格式化器
+	defaultLogger logger.Interface
 }
 
-// init 创建runtime目录，并初始化Logger
-func init() {
-	if !isDir("logs") {
-		err := os.Mkdir("./logs", 0777)
-		if err != nil {
-			panic("无法创建log目录")
+func (c *DbLogger) LogMode(level logger.LogLevel) logger.Interface {
+	c.LogLevel = level
+	return c
+}
+
+func (c *DbLogger) Info(ctx context.Context, message string, data ...interface{}) {
+	if c.LogLevel >= logger.Info {
+		c.writeLog(ctx, "info", message, data...)
+	}
+}
+
+func (c *DbLogger) Warn(ctx context.Context, message string, data ...interface{}) {
+	if c.LogLevel >= logger.Warn {
+		c.writeLog(ctx, "warn", message, data...)
+	}
+}
+
+func (c *DbLogger) Error(ctx context.Context, message string, data ...interface{}) {
+	if c.LogLevel >= logger.Error {
+		c.writeLog(ctx, "error", message, data...)
+	}
+}
+
+func (c *DbLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+	if c.LogLevel <= logger.Silent {
+		return
+	}
+
+	sql, rowsAffected := fc()
+	elapsed := time.Since(begin)
+	switch {
+	case elapsed > c.SlowThreshold && c.LogLevel >= logger.Warn:
+		c.writeLog(ctx, "slow", sql, rowsAffected, elapsed, err)
+	case c.LogLevel >= logger.Info:
+		c.writeLog(ctx, "info", sql, rowsAffected, elapsed)
+	}
+}
+
+func (c *DbLogger) writeLog(ctx context.Context, level string, message string, data ...interface{}) {
+	_, file, line, _ := runtime.Caller(3)
+	fileInfo := fmt.Sprintf("%s:%d", filepath.Base(file), line)
+	// 格式化日志消息
+	message += fmt.Sprintf("  row:%d time:%v", data...)
+	var formattedLogMessage string
+	formattedLogMessage = fmt.Sprintf("%s =>%s ", message, fileInfo)
+	if c.Colorful {
+		switch level {
+		case "info":
+			c.defaultLogger.Info(ctx, formattedLogMessage)
+		case "warn":
+			c.defaultLogger.Warn(ctx, formattedLogMessage)
+		case "error":
+			c.defaultLogger.Error(ctx, formattedLogMessage)
+		case "slow":
+			slowMessage := fmt.Sprintf("slow SQL: %s", message)
+			for _, v := range data {
+				slowMessage += " " + fmt.Sprintf("%v", v)
+			}
+			c.defaultLogger.Warn(ctx, slowMessage, data...)
 		}
+	} else {
+		logMessage := fmt.Sprintf("[%s] %s", level, message)
+		for _, v := range data {
+			logMessage += " " + fmt.Sprintf("%v", v)
+		}
+		formattedLogMessage = logMessage
+		fmt.Println(formattedLogMessage)
 	}
 
-	Logger = new()
+	//formattedLogMessage += "\n"
+	//filePath, err := GetLogFilePath()
+	//if err != nil {
+	//	return
+	//}
+	//
+	//logFile, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	//if err != nil {
+	//	return
+	//}
+	//defer logFile.Close()
+	//logFile.WriteString(formattedLogMessage)
 }
 
-// Write 实现Write接口，用于写入
-func (l *logger) Write(p []byte) (n int, err error) {
-	today := dateToStr(time.Now())
-	loggerDate := dateToStr(l.t)
+func NewDbLogger(fileLogger *log.Logger, slowThreshold time.Duration, logLevel logger.LogLevel, colorful bool) *DbLogger {
+	defaultLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold: slowThreshold,
+			LogLevel:      logLevel,
+			Colorful:      colorful,
+		},
+	)
 
-	//如果当前日期与logger日期不一致，表示是新的一天，需要关闭原日志文件，并更新日期与日志文件
-	if today != loggerDate && l.fp != nil {
-		l.fp.Close()
-		l.fp = nil
+	return &DbLogger{
+		SlowThreshold: slowThreshold,
+		LogLevel:      logLevel,
+		Colorful:      colorful,
+		defaultLogger: defaultLogger,
 	}
-
-	if l.fp == nil {
-		l.setLogfile()
-	}
-
-	//写入
-	if l.fp != nil {
-		return l.fp.Write(p)
-	}
-
-	return 0, errors.New("无法写入日志")
 }
 
-// new 初始化
-func new() *logger {
-	l := &logger{
-		t: time.Now(),
+func GetLogFilePath() (string, error) {
+	now := time.Now()
+	year := now.Year()
+	month := now.Month()
+	day := now.Day()
+
+	// 创建年月文件夹
+	yearMonthPath := filepath.Join("logs", fmt.Sprintf("%d-%02d", year, month))
+	if err := os.MkdirAll(yearMonthPath, 0777); err != nil {
+		return "", err
 	}
 
-	l.setLogfile()
-	return l
-}
+	// 生成日志文件名
+	logFileName := fmt.Sprintf("sql_%d%02d%02d.log", year, month, day)
+	filePath := filepath.Join(yearMonthPath, logFileName)
 
-// setLogfile 更新日志文件
-func (l *logger) setLogfile() error {
-	year, month, _ := time.Now().Date()
-	dir := fmt.Sprintf("./logs/%d-%02d", year, month)
-
-	//锁住，防止并发时，多次执行创建。os.MkdirAll在目录存在时，也不会返回错误，锁不锁都行
-	l.m.Lock()
-	defer l.m.Unlock()
-	if !isDir(dir) {
-		err := os.MkdirAll(dir, 0755)
-		return err
-	}
-	dayStr := time.Now().Format("20060102")
-	logfile := fmt.Sprintf("%s/%s.log", dir, dayStr)
-	//打开新的日志文件，用于写入
-	fp, err := os.OpenFile(logfile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0777)
-	if err != nil {
-		return err
-	}
-
-	l.fp = fp
-	return nil
-}
-
-// isDir 是否是目录
-func isDir(path string) bool {
-	s, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return s.IsDir()
-}
-
-// dateToStr 时间转换为日期字符串
-func dateToStr(t time.Time) string {
-	return t.Format("2006-01-02")
+	return filePath, nil
 }

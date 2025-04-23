@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/orglode/navigator/api"
-	"github.com/orglode/navigator/conf"
-	"github.com/orglode/navigator/dao"
-	"github.com/orglode/navigator/manager"
-	"github.com/orglode/navigator/model"
+	"navigator/api"
+	"navigator/conf"
+	"navigator/dao"
+	"navigator/manager"
+	"navigator/model"
 )
 
 type Service struct {

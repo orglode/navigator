@@ -2,7 +2,7 @@ package manager
 
 import (
 	"github.com/kirinlabs/HttpRequest"
-	"github.com/orglode/navigator/conf"
+	"navigator/conf"
 )
 
 type Manager struct {
