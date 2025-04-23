@@ -6,6 +6,7 @@ import (
 	"navigator/conf"
 	"navigator/model"
 	"navigator/service"
+	"net/http"
 )
 
 var (
@@ -49,4 +50,20 @@ func initGinLog() gin.LoggerConfig {
 		//Output: io.MultiWriter(os.Stdout, f),
 	}
 	return logConf
+}
+
+func responseSuccess(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "success",
+		"data": data,
+	})
+}
+
+func responseError(c *gin.Context, code int, message string) {
+	c.JSON(code, gin.H{
+		"code": 0,
+		"msg":  message,
+		"data": nil,
+	})
 }
