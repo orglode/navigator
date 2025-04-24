@@ -1,18 +1,15 @@
 package service
 
 import (
-	"navigator/api"
 	"navigator/conf"
 	"navigator/dao"
 	"navigator/manager"
-	"navigator/model"
 )
 
 type Service struct {
-	c        *conf.Config
-	mgr      *manager.Manager
-	dao      *dao.Dao
-	Response *model.BaseResponse
+	c   *conf.Config
+	mgr *manager.Manager
+	dao *dao.Dao
 }
 
 func NewService(conf *conf.Config) *Service {
@@ -20,8 +17,5 @@ func NewService(conf *conf.Config) *Service {
 		c:   conf,
 		mgr: manager.NewManager(conf),
 		dao: dao.NewDao(conf),
-		Response: &model.BaseResponse{
-			Code: api.Success,
-		},
 	}
 }
