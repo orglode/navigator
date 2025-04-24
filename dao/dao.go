@@ -3,12 +3,12 @@ package dao
 import (
 	"database/sql"
 	"github.com/gomodule/redigo/redis"
+
+	hadesLogger "github.com/orglode/hades/logger"
 	"gorm.io/driver/mysql"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
-	mylog "navigator/api/logger"
 	"navigator/conf"
 	"time"
 )
@@ -49,14 +49,18 @@ func initMysqlDb(dbConf string) *gorm.DB {
 }
 
 func initDbLog() logger.Interface {
-	newLogger := mylog.NewDbLogger(
-		log.New(nil, "\r\n", log.LstdFlags),
-		200*time.Millisecond,
-		logger.Info,
-		true,
-	)
-	return newLogger
+	return hadesLogger.GormLogger()
 }
+
+//func initDbLog() logger.Interface {
+//	newLogger := mylog.NewDbLogger(
+//		log.New(nil, "\r\n", log.LstdFlags),
+//		200*time.Millisecond,
+//		logger.Info,
+//		true,
+//	)
+//	return newLogger
+//}
 
 // 初始redis
 func initRedis(conf *conf.Config) redis.Conn {

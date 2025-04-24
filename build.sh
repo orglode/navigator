@@ -96,6 +96,6 @@ buildBin
 copyConf
 printRelease
 exit 0
-}
+
 
 

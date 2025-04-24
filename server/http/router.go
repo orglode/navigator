@@ -9,12 +9,12 @@ func initRouter(r *gin.Engine) {
 
 	r.GET("login", JwtTEstUser)
 
-	api := r.Group("/api/", jwt.AuthMiddleware())
+	api := r.Group("/api/")
 	{
 		api.GET("info", GetWxInfo)
 	}
 
-	crm := r.Group("/crm")
+	crm := r.Group("/crm", jwt.AuthMiddleware())
 	{
 		crm.GET("/ping")
 	}
