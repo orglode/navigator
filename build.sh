@@ -9,7 +9,7 @@ release_path=/Users/zhangxiaodong/temp
 release_project_path=$release_path/$target
 release_bin_path=$release_project_path/
 release_config_path=$release_project_path/config/
-release_log_path=$release_project_path/log
+release_log_path=$release_project_path/logs
 
 
 
