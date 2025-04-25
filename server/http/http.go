@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/orglode/hades/logger"
 	"github.com/orglode/hades/trace"
@@ -42,28 +41,6 @@ func Init(s *service.Service, conf *conf.Config) {
 
 	// 启动服务
 	router.Run(conf.Server.Addr)
-}
-
-// 初始化gin日志库
-func initGinLog() gin.LoggerConfig {
-	//date := time.Now().Format("20060102")
-	//year, month, _ := time.Now().Date()
-	//dir := fmt.Sprintf("./logs/%d-%02d", year, month)
-	//path := fmt.Sprintf("%s/access_"+date+".log", dir)
-	//f, _ := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0777)
-	var logConf = gin.LoggerConfig{
-		Formatter: func(param gin.LogFormatterParams) string {
-			return fmt.Sprintf("RequestUrl:%s,RequetMethod:%s,ClientIP:%s,RequestTime:[%s],TimeCost:%s\n",
-				param.Path,
-				param.Method,
-				param.ClientIP,
-				param.TimeStamp.Format("2006年01月02日 15:03:04"),
-				param.Latency,
-			)
-		},
-		//Output: io.MultiWriter(os.Stdout, f),
-	}
-	return logConf
 }
 
 func responseSuccess(c *gin.Context, data interface{}) {
