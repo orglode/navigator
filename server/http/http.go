@@ -61,23 +61,17 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 			if errors.As(err, &appErr) {
 				responseError(c, appErr.Code, appErr.Message)
 			} else {
-				responseError(c, 500, err.Error())
+				responseError(c, model.SystemErr, err.Error())
 			}
 			return
 		}
 	}
 }
 
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
 // responseSuccess 成功响应
 func responseSuccess(c *gin.Context, data interface{}) {
-	c.JSON(200, Response{
-		Code:    0,
+	c.JSON(200, model.HttpResponse{
+		Code:    model.SuccessCode,
 		Message: "success",
 		Data:    data,
 	})
@@ -85,7 +79,7 @@ func responseSuccess(c *gin.Context, data interface{}) {
 
 // ResponseError 错误响应
 func responseError(c *gin.Context, code int, message ...string) {
-	c.JSON(http.StatusOK, Response{
+	c.JSON(http.StatusOK, model.HttpResponse{
 		Code:    code,
 		Message: message[0],
 		Data:    nil,

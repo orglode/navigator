@@ -2,25 +2,24 @@ package model
 
 import (
 	"github.com/golang-jwt/jwt/v4"
-	"navigator/api"
 )
 
 type model struct {
 }
 
-type BaseResponse struct {
-	*api.Code
-	Data interface{} `json:"data"`
-}
-
 const (
 	EnvProduction = "production"
-)
-
-const (
+	SuccessCode   = 0
+	SystemErr     = 500
 	StatusSuccess = 2
 	StatusFail    = 1
 )
+
+type HttpResponse struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
 
 type MyClaims struct {
 	UserId int64 `json:"user_id"`
