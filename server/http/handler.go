@@ -1,10 +1,20 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
 	"navigator/api/jwt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
+
+func testError(c *gin.Context) {
+	data, err := svc.TestError(c.Request.Context())
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	responseSuccess(c, data)
+}
 
 func JwtTEstUser(c *gin.Context) {
 	token, _ := jwt.GenerateToken(123)

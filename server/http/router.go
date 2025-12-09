@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
 	"navigator/api/jwt"
+
+	"github.com/gin-gonic/gin"
 )
 
 func initRouter(r *gin.Engine) {
@@ -12,6 +13,7 @@ func initRouter(r *gin.Engine) {
 	api := r.Group("/api/")
 	{
 		api.GET("info", GetWxInfo)
+		api.GET("testError", testError)
 	}
 
 	crm := r.Group("/crm", jwt.AuthMiddleware())

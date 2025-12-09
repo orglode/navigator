@@ -1,13 +1,16 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/orglode/hades/logger"
-	"github.com/orglode/hades/trace"
+	"errors"
+	apiErr "navigator/api/error"
 	"navigator/conf"
 	"navigator/model"
 	"navigator/service"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/orglode/hades/logger"
+	"github.com/orglode/hades/trace"
 )
 
 var (
@@ -35,6 +38,8 @@ func Init(s *service.Service, conf *conf.Config) {
 
 	// gin恢复模式
 	router.Use(gin.Recovery())
+	// 错误中间件
+	router.Use(ErrorHandlerMiddleware())
 
 	// 初始化路由
 	initRouter(router)
@@ -43,18 +48,46 @@ func Init(s *service.Service, conf *conf.Config) {
 	router.Run(conf.Server.Addr)
 }
 
+// 错误处理中间件
+func ErrorHandlerMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+
+		// 如果有错误
+		if len(c.Errors) > 0 {
+			err := c.Errors.Last().Err
+
+			var appErr *apiErr.AppError
+			if errors.As(err, &appErr) {
+				responseError(c, appErr.Code, appErr.Message)
+			} else {
+				responseError(c, 500, err.Error())
+			}
+			return
+		}
+	}
+}
+
+type Response struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+// responseSuccess 成功响应
 func responseSuccess(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": data,
+	c.JSON(200, Response{
+		Code:    0,
+		Message: "success",
+		Data:    data,
 	})
 }
 
-func responseError(c *gin.Context, code int, message string) {
-	c.JSON(code, gin.H{
-		"code": 0,
-		"msg":  message,
-		"data": nil,
+// ResponseError 错误响应
+func responseError(c *gin.Context, code int, message ...string) {
+	c.JSON(http.StatusOK, Response{
+		Code:    code,
+		Message: message[0],
+		Data:    nil,
 	})
 }
