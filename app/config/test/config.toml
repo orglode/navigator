@@ -1,9 +1,29 @@
+[server]
+name = "naviagtor"
+addr = ":23200"
 env = "test"
+jwt_token = "ywu*7qwi12387^&@djsjkadk!23"
+logs_path="./logs"
 
-http_addr = ":23200"
-#db
-db_master = "root:1995@Zxd@tcp(101.43.152.142:3306)/rbac?charset=utf8mb4&parseTime=true&loc=Local"
-db_slave = "root:1995@Zxd@tcp(101.43.152.142:3306)/rbac?charset=utf8mb4&parseTime=true&loc=Local"
 
-#redis
-redis_url=""
+[db]
+[db.master]
+drive="mysql"
+url = "root:1234567@tcp(127.0.0.1:3306)/xxxx?charset=utf8mb4&parseTime=true&loc=Local"
+max_idle_conn=90
+max_open_conn=100
+conn_max_life_time=10
+
+[db.slave]
+drive="mysql"
+url = "root:1234567@tcp(127.0.0.1:3306)/xxxx?charset=utf8mb4&parseTime=true&loc=Local"
+max_idle_conn=90
+max_open_conn=100
+conn_max_life_time=10
+
+
+[redis]
+name = "redis"
+addr = "127.0.0.1:6379"
+password = ""
+db = 0

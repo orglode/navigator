@@ -13,9 +13,10 @@ type Service struct {
 }
 
 func NewService(conf *conf.Config) *Service {
-	return &Service{
+	service := &Service{
 		c:   conf,
 		mgr: manager.NewManager(conf),
 		dao: dao.NewDao(conf),
 	}
+	return service
 }

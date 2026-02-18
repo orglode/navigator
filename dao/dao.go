@@ -1,42 +1,67 @@
 package dao
 
 import (
+	"context"
 	"database/sql"
-	"github.com/gomodule/redigo/redis"
+	"fmt"
 
-	hadesLogger "github.com/orglode/hades/logger"
+	"github.com/go-redis/redis/v8"
+
+	"navigator/conf"
+	"time"
+
+	loggerV2 "github.com/orglode/hades/logger_v2"
 	"gorm.io/driver/mysql"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"navigator/conf"
-	"time"
 )
 
 type Dao struct {
-	conf        *conf.Config
-	mySqlMaster *gorm.DB
-	mySqlSlave  *gorm.DB
-	Redis       redis.Conn
+	conf  *conf.Config
+	db    *Mysql
+	redis *redis.Client
 }
 
 func NewDao(conf *conf.Config) *Dao {
-	return &Dao{
-		conf:        conf,
-		mySqlMaster: initMysqlDb(conf.Mysql.Master),
-		mySqlSlave:  initMysqlDb(conf.Mysql.Slave),
-		Redis:       initRedis(conf),
+	dbMysql := &Mysql{
+		mysqlMaster: initMysqlDb(conf.Db.Master),
+		mysqlSlave:  initMysqlDb(conf.Db.Slave),
 	}
+	db := &Dao{
+		conf:  conf,
+		db:    dbMysql,
+		redis: initRedis(conf.Redis),
+	}
+	return db
+}
+
+// Transaction 事务
+func (d *Dao) Transaction(ctx context.Context, fn func(tx *gorm.DB)) error {
+	return nil
+}
+
+type Mysql struct {
+	mysqlMaster *gorm.DB
+	mysqlSlave  *gorm.DB
+}
+
+func (d *Mysql) Master(ctx context.Context) *gorm.DB {
+	return d.mysqlMaster.WithContext(ctx)
+}
+func (d *Mysql) Slave(ctx context.Context) *gorm.DB {
+	return d.mysqlSlave.WithContext(ctx)
 }
 
 // 初始化MySQL连接池
-func initMysqlDb(dbConf string) *gorm.DB {
-	db, _ := sql.Open("mysql", dbConf)
-	db.SetMaxIdleConns(90)
-	//设置一个连接的最长生命周期，因为数据库本身对连接有一个超时时间的设置，如果超时时间到了数据库会单方面断掉连接，此时再用连接池内的连接进行访问就会出错, 因此这个值往往要小于数据库本身的连接超时时间
-	db.SetConnMaxLifetime(time.Minute * 10)
-	//置最大打开的连接数，默认值为0表示不限制。控制应用于数据库建立连接的数量，避免过多连接压垮数据库。
-	db.SetMaxOpenConns(100)
+func initMysqlDb(dbConf *conf.MysqlConfig) *gorm.DB {
+	db, err := sql.Open(dbConf.Drive, dbConf.Url)
+	if err != nil {
+		panic(err)
+	}
+	db.SetMaxIdleConns(dbConf.MaxIdleConn)
+	db.SetConnMaxLifetime(time.Duration(dbConf.ConnMaxLifeTime) * time.Minute)
+	db.SetMaxOpenConns(dbConf.MaxOpenConn)
 	master, err := gorm.Open(mysql.New(mysql.Config{
 		Conn: db,
 	}), &gorm.Config{
@@ -47,26 +72,35 @@ func initMysqlDb(dbConf string) *gorm.DB {
 	}
 	return master
 }
-
 func initDbLog() logger.Interface {
-	return hadesLogger.GormLogger()
+	gormLogger := loggerV2.NewGormLogger(loggerV2.GetSQLLogger())
+	return gormLogger
 }
 
-//func initDbLog() logger.Interface {
-//	newLogger := mylog.NewDbLogger(
-//		log.New(nil, "\r\n", log.LstdFlags),
-//		200*time.Millisecond,
-//		logger.Info,
-//		true,
-//	)
-//	return newLogger
-//}
-
 // 初始redis
-func initRedis(conf *conf.Config) redis.Conn {
-	conn, err := redis.Dial("tcp", conf.Redis.Addr)
+func initRedis(conf *conf.RedisConfig) *redis.Client {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     conf.Addr,     // Redis 地址
+		Password: conf.PassWord, // 密码
+		DB:       conf.Db,       // 数据库
+	})
+
+	ctx := context.Background()
+
+	// 测试连接
+	pong, err := rdb.Ping(ctx).Result()
 	if err != nil {
-		return nil
+		panic(err)
 	}
-	return conn
+	fmt.Println(pong) // 输出: PONG
+	return rdb
+}
+
+type Paging struct {
+	Page int `json:"page" schema:"page"`
+	Size int `json:"size" schema:"size"`
+}
+
+func (p *Paging) Offset() int {
+	return (p.Page - 1) * p.Size
 }

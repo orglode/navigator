@@ -1,12 +1,16 @@
 package error
 
-import "fmt"
+import (
+	"fmt"
+)
 
 var (
-	ErrUserAlreadyExists = &AppError{Code: 1001, Message: "用户已存在"}
-	ErrRoleNotFound      = &AppError{Code: 1002, Message: "角色不存在"}
-	ErrInvalidPermission = &AppError{Code: 1003, Message: "权限无效"}
-	// ... 其他业务错误
+	// ======================base code =========================//
+	Success          = &AppError{Code: 0, Message: "success"}
+	MissingParameter = &AppError{Code: 499, Message: "缺少参数"}
+	InternalError    = &AppError{Code: 500, Message: "网络异常请稍后重试"}
+
+	// ======================base code =========================//
 )
 
 type AppError struct {

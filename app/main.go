@@ -1,28 +1,29 @@
 package main
 
 import (
-	"github.com/orglode/hades/logger"
 	"navigator/conf"
 	"navigator/server/http"
 	"navigator/service"
 	"time"
+
+	logger "github.com/orglode/hades/logger_v2"
 )
 
 func main() {
 	// 初始化配置
 	cfg := conf.Init()
 
-	// 初始化日志
-	config := logger.Config{
-		LogDir:       "./logs",
+	// 1. 初始化日志
+	if err := logger.InitLogger(logger.Config{
+		LogDir:       cfg.Server.LogsPath,
 		MaxAge:       30 * 24 * time.Hour,
 		RotationTime: 24 * time.Hour,
-		Level:        "debug",
+		Level:        "info",
 		JSONFormat:   true,
+	}); err != nil {
+		panic("logger init error")
 	}
-	if err := logger.InitLogger(config); err != nil {
-		panic(err)
-	}
+
 	defer logger.Close()
 
 	// 初始化service

@@ -8,17 +8,11 @@ import (
 
 func initRouter(r *gin.Engine) {
 
-	r.GET("login", JwtTEstUser)
+	r.GET(apiPrefix+"test", Test)
 
-	api := r.Group("/api/")
+	v1 := r.Group(apiPrefix+"v1/", jwt.AuthMiddleware())
 	{
-		api.GET("info", GetWxInfo)
-		api.GET("testError", testError)
-	}
-
-	crm := r.Group("/crm", jwt.AuthMiddleware())
-	{
-		crm.GET("/ping")
+		v1.GET("/heath", Test)
 	}
 
 }

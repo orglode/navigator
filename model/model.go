@@ -7,19 +7,26 @@ import (
 type model struct {
 }
 
-const (
-	EnvProduction = "production"
-	SuccessCode   = 0
-	SystemErr     = 500
-	StatusSuccess = 2
-	StatusFail    = 1
-)
-
+// Response 通用响应结构
 type HttpResponse struct {
 	Code    int         `json:"code"`
-	Message string      `json:"message"`
+	Message string      `json:"msg"`
 	Data    interface{} `json:"data,omitempty"`
+	TraceId string      `json:"trace_id"`
 }
+
+type Paging struct {
+	Page int `json:"page" form:"page"`
+	Size int `json:"size" form:"size"`
+}
+
+const (
+	EnvProduction = "production"
+	EnvTest       = "test"
+
+	StatusSuccess = 1
+	StatusFail    = 2
+)
 
 type MyClaims struct {
 	UserId int64 `json:"user_id"`
